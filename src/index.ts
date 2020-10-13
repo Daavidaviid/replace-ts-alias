@@ -1,16 +1,16 @@
-import yargs from 'yargs';
-const replace = require('replace-in-file');
-import { generateDepth, readConfig, walkFolder } from './utils';
+#!/usr/bin/env node
+
+import yargs from "yargs";
+const replace = require("replace-in-file");
+import { generateDepth, readConfig, walkFolder } from "./utils";
 
 const args = yargs.options({
-  path: { type: 'string', demandOption: true, alias: 'p' },
+  path: { type: "string", demandOption: true, alias: "p" },
 }).argv;
 
 const { path } = args;
 
 const main = async () => {
-  console.log('Custom CLI');
-
   try {
     const { aliases, distPath: dist } = await readConfig(path);
 
@@ -27,7 +27,10 @@ const main = async () => {
         // console.log({ match, value, path, depth });
 
         const key = `@${value}`;
-        const depthPath = generateDepth(depth - 3);
+
+        // console.log(`depth - 1 = ${depth - 1}`);
+        const depthPath = generateDepth(depth - 1);
+
         const aliasValue = aliases[key];
 
         // console.log({ aliasValue });
@@ -45,6 +48,7 @@ const main = async () => {
   } catch (error) {
     console.warn(error);
   }
+  console.log("replace-ts-alias script done");
 };
 
 main();
