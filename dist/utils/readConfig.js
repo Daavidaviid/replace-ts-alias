@@ -11,12 +11,14 @@ exports.readConfig = async (path) => {
         const file = await promises_1.default.readFile(filePath);
         const contentString = file.toString();
         if (!contentString) {
-            throw new Error('tsconfig.json not found');
+            throw new Error("tsconfig.json not found");
         }
         const content = JSON.parse(contentString);
         let aliases = {};
         Object.entries(content.compilerOptions.paths).forEach(([key, v]) => {
-            aliases[key] = v[0];
+            const safeKey = key.replace("*", "");
+            const safeValue = v[0].replace("*", "");
+            aliases[safeKey] = safeValue;
         });
         return {
             distPath: content.compilerOptions.outDir,

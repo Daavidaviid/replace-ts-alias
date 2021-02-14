@@ -17,32 +17,27 @@ const main = async () => {
     const distPath = `${path}/${dist}`;
     const files = await walkFolder(distPath);
 
-    // console.log({ aliases });
-
     await replace({
       files,
       from: /require\("@(.*?)"\)/g,
       to: (match: string, value: any, size: any, content: any, path: any) => {
         const depth = path.match(/\/.+?/g).length;
-        // console.log({ match, value, path, depth });
 
         const key = `@${value}`;
 
-        // console.log(`depth - 1 = ${depth - 1}`);
+        const [module, next] = key.split(/\/(.+)/);
+
         const depthPath = generateDepth(depth - 1);
 
-        const aliasValue = aliases[key];
-
-        // console.log({ aliasValue });
+        const aliasValue = next ? aliases[`${module}/`] : aliases[module];
 
         if (!aliasValue) {
           return match;
         }
 
         const replacement = `${depthPath}${aliasValue}`;
-        // console.log({ replacement });
 
-        return `require("${replacement}")`;
+        return `require("${replacement}${next || ""}")`;
       },
     });
   } catch (error) {

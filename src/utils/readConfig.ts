@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from "fs/promises";
 
 interface Paths {
   [key: string]: string[];
@@ -27,14 +27,17 @@ export const readConfig = async (path: string): Promise<Result> => {
     const contentString = file.toString();
 
     if (!contentString) {
-      throw new Error('tsconfig.json not found');
+      throw new Error("tsconfig.json not found");
     }
 
     const content = JSON.parse(contentString) as TSconfig;
 
     let aliases: any = {};
     Object.entries(content.compilerOptions.paths).forEach(([key, v]) => {
-      aliases[key] = v[0];
+      const safeKey = key.replace("*", "");
+      const safeValue = v[0].replace("*", "");
+
+      aliases[safeKey] = safeValue;
     });
 
     return {

@@ -16,24 +16,23 @@ const main = async () => {
         const { aliases, distPath: dist } = await utils_1.readConfig(path);
         const distPath = `${path}/${dist}`;
         const files = await utils_1.walkFolder(distPath);
-        // console.log({ aliases });
         await replace({
             files,
             from: /require\("@(.*?)"\)/g,
             to: (match, value, size, content, path) => {
                 const depth = path.match(/\/.+?/g).length;
-                // console.log({ match, value, path, depth });
+                /**
+                 * key = "@api/utils"
+                 */
                 const key = `@${value}`;
-                // console.log(`depth - 1 = ${depth - 1}`);
+                const [module, next] = key.split(/\/(.+)/);
                 const depthPath = utils_1.generateDepth(depth - 1);
-                const aliasValue = aliases[key];
-                // console.log({ aliasValue });
+                const aliasValue = next ? aliases[`${module}/`] : aliases[module];
                 if (!aliasValue) {
                     return match;
                 }
                 const replacement = `${depthPath}${aliasValue}`;
-                // console.log({ replacement });
-                return `require("${replacement}")`;
+                return `require("${replacement}${next || ""}")`;
             },
         });
     }
